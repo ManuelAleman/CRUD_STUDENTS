@@ -1,4 +1,6 @@
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.*;
 
 public class Estudiante extends JFrame{
@@ -19,7 +21,8 @@ public class Estudiante extends JFrame{
     private JButton insertBt;
     private JButton showBt;
     private JList lista;
-
+    private JButton deleteBt;
+    private JTextField idDeleteTextTextField;
 
 
     public static void main(String[] args) {
@@ -75,6 +78,23 @@ public class Estudiante extends JFrame{
         model.addElement("Failed to insert");
 
     }
+
+    public void deleteData() throws SQLException {
+        connect();
+        ps = con.prepareStatement("DELETE FROM Estudiante WHERE id = ?");
+        ps.setInt(1, Integer.parseInt(idDeleteTextTextField.getText()));
+
+        if ( ps.executeUpdate() > 0 ) {
+            lista.setModel(model);
+            model.removeAllElements();
+            model.addElement("Succesfully deleted");
+
+            idDeleteTextTextField.setText("");
+            return;
+        }
+        model.addElement("Failed to delete");
+    }
+
     public Estudiante() {
         showBt.addActionListener(e -> {
             try {
@@ -91,11 +111,18 @@ public class Estudiante extends JFrame{
                 throw new RuntimeException(ex);
             }
         });
+        deleteBt.addActionListener( e -> {
+            try {
+                deleteData();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
     }
 
     public void connect(){
         try{
-            con = DriverManager.getConnection("JDBC_Connection", "user", "pwd");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/learning", "root", "4CM13v1y");
             System.out.println("Conectado");
         } catch (SQLException e) {
             throw new RuntimeException("No se pudo conectar", e);
